@@ -1,4 +1,4 @@
-
+// coba
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
