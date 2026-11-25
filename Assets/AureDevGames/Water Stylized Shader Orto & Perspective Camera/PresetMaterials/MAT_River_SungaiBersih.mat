@@ -129,7 +129,7 @@ Material:
     - _Show: 0
     - _SkyboxForce: 2.5
     - _Steps: 50
-    - _SurfaceFoamDirection: 1
+    - _SurfaceFoamDirection: 0.25
     - _SurfaceFoamDistorsion: 0.25
     - _SurfaceFoamSpeed: 0.7
     - _SurfaceFoamTiling: 0.9
@@ -153,7 +153,7 @@ Material:
     - _CaveScale: {r: 0.01, g: 0.01, b: 0, a: 0}
     - _CaveSecondaryColor: {r: 0, g: 0, b: 0, a: 0}
     - _DeepColor: {r: 0.08627451, g: 0.35686275, b: 0.3882353, a: 0.40392157}
-    - _FoamUVsOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _FoamUVsOffset: {r: 0, g: 1, b: 0, a: 0}
     - _FresnelColor: {r: 2.670157, g: 2.670157, b: 2.670157, a: 0}
     - _HorizonColor: {r: 22.778418, g: 32.518154, b: 30.47595, a: 1}
     - _IntersectionFoamColor: {r: 1.8868933, g: 1.9832453, b: 1.9270399, a: 1}

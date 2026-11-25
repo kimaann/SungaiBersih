@@ -1,4 +1,4 @@
-// coba-coba
+
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -6,6 +6,7 @@ public class BoatMovement : MonoBehaviour
 {
     [Header("Movement")]
     public float moveSpeed = 7f;
+    public float autoForwardSpeed = 4f;
     public float acceleration = 20f;
     public float deceleration = 28f;
 
@@ -48,8 +49,17 @@ public class BoatMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        Vector3 targetVelocity =
+        // Input manual WASD
+        Vector3 manualVelocity =
             inputDirection * moveSpeed;
+
+        // Kecepatan otomatis ke depan
+        Vector3 automaticVelocity =
+            Vector3.forward * autoForwardSpeed;
+
+        // Gabungkan keduanya
+        Vector3 targetVelocity =
+            manualVelocity + automaticVelocity;
 
 #if UNITY_6000_0_OR_NEWER
         Vector3 velocity = rb.linearVelocity;
@@ -58,10 +68,13 @@ public class BoatMovement : MonoBehaviour
 #endif
 
         Vector3 currentVelocity = new Vector3(
-            velocity.x, 0f, velocity.z
+            velocity.x,
+            0f,
+            velocity.z
         );
 
-        float rate = inputDirection.sqrMagnitude > 0f
+        float rate =
+            targetVelocity.magnitude > currentVelocity.magnitude
             ? acceleration
             : deceleration;
 
