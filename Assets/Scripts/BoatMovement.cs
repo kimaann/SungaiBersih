@@ -1,4 +1,4 @@
-// coba-coba
+
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -8,6 +8,12 @@ public class BoatMovement : MonoBehaviour
     public float moveSpeed = 7f;
     public float acceleration = 20f;
     public float deceleration = 28f;
+
+    [Header("Slow Motion")]
+    [Range(0.01f, 1f)]
+    public float slowMotionMultiplier = 0.15f;
+
+    private bool isSlowMotion = false;
 
     private Rigidbody rb;
     private Vector3 inputDirection;
@@ -30,6 +36,12 @@ public class BoatMovement : MonoBehaviour
             RigidbodyConstraints.FreezeRotation;
     }
 
+    // Dipanggil oleh script lain untuk mengatur slow motion
+    public void SetSlowMotion(bool active)
+    {
+        isSlowMotion = active;
+    }
+
     void Update()
     {
         float x = 0f;
@@ -48,8 +60,12 @@ public class BoatMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        float speedMultiplier = isSlowMotion
+            ? slowMotionMultiplier
+            : 1f;
+
         Vector3 targetVelocity =
-            inputDirection * moveSpeed;
+            inputDirection * moveSpeed * speedMultiplier;
 
 #if UNITY_6000_0_OR_NEWER
         Vector3 velocity = rb.linearVelocity;
@@ -61,9 +77,11 @@ public class BoatMovement : MonoBehaviour
             velocity.x, 0f, velocity.z
         );
 
-        float rate = inputDirection.sqrMagnitude > 0f
+        float rate = (
+            inputDirection.sqrMagnitude > 0f
             ? acceleration
-            : deceleration;
+            : deceleration
+        ) * speedMultiplier;
 
         Vector3 newVelocity = Vector3.MoveTowards(
             currentVelocity,

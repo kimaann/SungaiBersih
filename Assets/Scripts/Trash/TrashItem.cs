@@ -10,10 +10,10 @@ public enum TrashCategory
 public class TrashItem : MonoBehaviour
 {
     [Header("Informasi Sampah")]
-    [SerializeField] private string trashDisplayName = "Styrofoam";
+    [SerializeField] private string trashDisplayName = "";
 
     [SerializeField] private TrashCategory category =
-        TrashCategory.Anorganik;
+        TrashCategory.Organik;
 
     public string TrashDisplayName => trashDisplayName;
     public TrashCategory Category => category;
