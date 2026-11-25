@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -10,12 +9,16 @@ public class BoatMovement : MonoBehaviour
     public float acceleration = 20f;
     public float deceleration = 28f;
 
+    [Header("Slow Motion")]
+    [Range(0.01f, 1f)]
+    public float slowMotionMultiplier = 0.15f;
+    private bool isSlowMotion = false;
+
     [Header("Knockback")]
     [SerializeField] private float knockbackRecovery = 8f;
     [SerializeField] private float maxKnockbackSpeed = 9f;
 
     private Rigidbody rb;
-
     private Vector3 inputDirection;
     private Vector3 movementVelocity;
     private Vector3 externalVelocity;
@@ -26,24 +29,29 @@ public class BoatMovement : MonoBehaviour
 
         rb.useGravity = false;
         rb.isKinematic = false;
-
-        rb.interpolation =
-            RigidbodyInterpolation.Interpolate;
-
-        rb.collisionDetectionMode =
-            CollisionDetectionMode.ContinuousDynamic;
-
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         rb.constraints =
             RigidbodyConstraints.FreezePositionY |
             RigidbodyConstraints.FreezeRotation;
 
+#if UNITY_6000_0_OR_NEWER
         Vector3 initialVelocity = rb.linearVelocity;
+#else
+        Vector3 initialVelocity = rb.velocity;
+#endif
 
         movementVelocity = new Vector3(
             initialVelocity.x,
             0f,
             initialVelocity.z
         );
+    }
+
+    // Dipanggil oleh script lain untuk mengaktifkan atau mematikan slow motion.
+    public void SetSlowMotion(bool active)
+    {
+        isSlowMotion = active;
     }
 
     private void Update()
@@ -64,17 +72,16 @@ public class BoatMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // Input manual WASD
-        Vector3 manualVelocity =
-            inputDirection * moveSpeed;
+        float speedMultiplier = isSlowMotion
+            ? slowMotionMultiplier
+            : 1f;
 
-        // Kecepatan otomatis ke depan
-        Vector3 automaticVelocity =
-            Vector3.forward * autoForwardSpeed;
+        // Gerakan manual WASD dan gerakan otomatis ke depan.
+        Vector3 manualVelocity = inputDirection * moveSpeed;
+        Vector3 automaticVelocity = Vector3.forward * autoForwardSpeed;
 
-        // Gabungkan keduanya
         Vector3 targetVelocity =
-            manualVelocity + automaticVelocity;
+            (manualVelocity + automaticVelocity) * speedMultiplier;
 
 #if UNITY_6000_0_OR_NEWER
         Vector3 velocity = rb.linearVelocity;
@@ -90,38 +97,47 @@ public class BoatMovement : MonoBehaviour
 
         float rate =
             targetVelocity.magnitude > currentVelocity.magnitude
-            ? acceleration
-            : deceleration;
+                ? acceleration
+                : deceleration;
 
-        // Kecepatan dari kontrol pemain
+        rate *= speedMultiplier;
+
+        // Perubahan kecepatan dari kontrol pemain.
         movementVelocity = Vector3.MoveTowards(
             movementVelocity,
             targetVelocity,
             rate * Time.fixedDeltaTime
         );
 
-        // Knockback berkurang secara bertahap
+        // Knockback berkurang secara bertahap.
         externalVelocity = Vector3.MoveTowards(
             externalVelocity,
             Vector3.zero,
-            knockbackRecovery * Time.fixedDeltaTime
+            knockbackRecovery * speedMultiplier * Time.fixedDeltaTime
         );
 
-        // Gabungkan kedua jenis kecepatan
+        // Gabungkan gerakan kapal dan knockback.
         Vector3 finalVelocity =
-            movementVelocity + externalVelocity;
+            movementVelocity + externalVelocity * speedMultiplier;
 
+#if UNITY_6000_0_OR_NEWER
         rb.linearVelocity = new Vector3(
             finalVelocity.x,
             0f,
             finalVelocity.z
         );
+#else
+        rb.velocity = new Vector3(
+            finalVelocity.x,
+            0f,
+            finalVelocity.z
+        );
+#endif
     }
 
     public void ApplyKnockback(Vector3 velocityChange)
     {
         velocityChange.y = 0f;
-
         externalVelocity += velocityChange;
 
         externalVelocity = Vector3.ClampMagnitude(
