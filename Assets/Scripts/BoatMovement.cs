@@ -10,10 +10,17 @@ public class BoatMovement : MonoBehaviour
     public float acceleration = 20f;
     public float deceleration = 28f;
 
-    private Rigidbody rb;
-    private Vector3 inputDirection;
+    [Header("Knockback")]
+    [SerializeField] private float knockbackRecovery = 8f;
+    [SerializeField] private float maxKnockbackSpeed = 9f;
 
-    void Awake()
+    private Rigidbody rb;
+
+    private Vector3 inputDirection;
+    private Vector3 movementVelocity;
+    private Vector3 externalVelocity;
+
+    private void Awake()
     {
         rb = GetComponent<Rigidbody>();
 
@@ -29,9 +36,17 @@ public class BoatMovement : MonoBehaviour
         rb.constraints =
             RigidbodyConstraints.FreezePositionY |
             RigidbodyConstraints.FreezeRotation;
+
+        Vector3 initialVelocity = rb.linearVelocity;
+
+        movementVelocity = new Vector3(
+            initialVelocity.x,
+            0f,
+            initialVelocity.z
+        );
     }
 
-    void Update()
+    private void Update()
     {
         float x = 0f;
         float z = 0f;
@@ -47,7 +62,7 @@ public class BoatMovement : MonoBehaviour
         );
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         // Input manual WASD
         Vector3 manualVelocity =
@@ -78,16 +93,40 @@ public class BoatMovement : MonoBehaviour
             ? acceleration
             : deceleration;
 
-        Vector3 newVelocity = Vector3.MoveTowards(
-            currentVelocity,
+        // Kecepatan dari kontrol pemain
+        movementVelocity = Vector3.MoveTowards(
+            movementVelocity,
             targetVelocity,
             rate * Time.fixedDeltaTime
         );
 
-#if UNITY_6000_0_OR_NEWER
-        rb.linearVelocity = newVelocity;
-#else
-        rb.velocity = newVelocity;
-#endif
+        // Knockback berkurang secara bertahap
+        externalVelocity = Vector3.MoveTowards(
+            externalVelocity,
+            Vector3.zero,
+            knockbackRecovery * Time.fixedDeltaTime
+        );
+
+        // Gabungkan kedua jenis kecepatan
+        Vector3 finalVelocity =
+            movementVelocity + externalVelocity;
+
+        rb.linearVelocity = new Vector3(
+            finalVelocity.x,
+            0f,
+            finalVelocity.z
+        );
+    }
+
+    public void ApplyKnockback(Vector3 velocityChange)
+    {
+        velocityChange.y = 0f;
+
+        externalVelocity += velocityChange;
+
+        externalVelocity = Vector3.ClampMagnitude(
+            externalVelocity,
+            maxKnockbackSpeed
+        );
     }
 }

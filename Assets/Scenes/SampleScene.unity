@@ -1737,6 +1737,7 @@ GameObject:
   - component: {fileID: 120762815}
   - component: {fileID: 120762816}
   - component: {fileID: 120762817}
+  - component: {fileID: 120762818}
   m_Layer: 0
   m_Name: Boat
   m_TagString: Untagged
@@ -1753,7 +1754,7 @@ Transform:
   m_GameObject: {fileID: 120762813}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.02369, y: 0.92651, z: -93.13398}
+  m_LocalPosition: {x: 0.02369, y: -0.01, z: -85.66}
   m_LocalScale: {x: 0.65919185, y: 0.65919185, z: 0.65919185}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1777,6 +1778,8 @@ MonoBehaviour:
   autoForwardSpeed: 6
   acceleration: 20
   deceleration: 28
+  knockbackRecovery: 8
+  maxKnockbackSpeed: 9
 --- !u!54 &120762816
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1820,6 +1823,23 @@ MonoBehaviour:
   damagePerHit: 20
   damageCooldown: 1
   healthText: {fileID: 170390190}
+--- !u!114 &120762818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 120762813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00a3b9dc7ac4d004d8f5e66fa006c3b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoatCollisionResponse
+  boatKnockbackStrength: 4
+  logImpulse: 5
+  logTorque: 8
+  logSpin: 4
+  responseCooldown: 0.35
 --- !u!1001 &124634564
 PrefabInstance:
   m_ObjectHideFlags: 0
