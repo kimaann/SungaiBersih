@@ -22,10 +22,18 @@ public class BoatMovement : MonoBehaviour
     private Vector3 inputDirection;
     private Vector3 movementVelocity;
     private Vector3 externalVelocity;
+    private Transform visualTransform;
+
+    public float CurrentSpeedMultiplier => isSlowMotion ? slowMotionMultiplier : 1f;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        visualTransform = transform.Find("Boatvisual");
+
+        Transform colliderTransform = transform.Find("BoatCollider");
+        if (colliderTransform != null && colliderTransform.TryGetComponent(out MeshRenderer mr))
+            mr.enabled = false;
 
         rb.useGravity = false;
         rb.isKinematic = false;
@@ -68,6 +76,13 @@ public class BoatMovement : MonoBehaviour
             new Vector3(x, 0f, z),
             1f
         );
+
+        if (visualTransform != null)
+        {
+            // shortcut: sudut tilt tetap (-12 roll, 4 pitch), pindah ke SerializeField jika perlu tuning per kapal
+            Quaternion targetRot = Quaternion.Euler(z * 4f, 0f, -x * 12f - externalVelocity.x * 1.5f);
+            visualTransform.localRotation = Quaternion.Slerp(visualTransform.localRotation, targetRot, 10f * Time.deltaTime);
+        }
     }
 
     private void FixedUpdate()

@@ -123,6 +123,9 @@ public class EnvironmentLooper : MonoBehaviour
                     segments[maxIndex].position +
                     Vector3.forward * segmentLength;
 
+                foreach (MovingObstacle obs in segments[minIndex].GetComponentsInChildren<MovingObstacle>(true))
+                    obs.ResetObstacle();
+
                 safety++;
             }
         }
