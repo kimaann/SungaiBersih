@@ -12304,6 +12304,18 @@ MonoBehaviour:
   loopForward: 0
   loopBackward: 0
   finiteCourseMode: 1
+  customRockPrefabs:
+  - {fileID: 100000, guid: 1e2ef0cc5c65717479848f40d793d3ee, type: 3}
+  - {fileID: 100000, guid: 043111edfa1d129478e041d0c2a324c8, type: 3}
+  - {fileID: 100000, guid: e08d894d1a4dca746a9673007d5c706d, type: 3}
+  - {fileID: 100000, guid: 8988c881874f4cb4db33f58b6a8e7416, type: 3}
+  - {fileID: 100000, guid: 0a1cade8f3785a5498483caf954be128, type: 3}
+  customLogPrefabs:
+  - {fileID: 6303571155161540850, guid: 44784e2ace718a347a854ca6365dfcb5, type: 3}
+  - {fileID: 7607806082669998225, guid: 25ed97c839221d04fa970cae970563a6, type: 3}
+  - {fileID: 2983289469897338500, guid: 4a6ee92c5738f3049bda69346b5dde57, type: 3}
+  - {fileID: 6178029016651754423, guid: ff37aad502df13a4ba9d7d9297a6863f, type: 3}
+  - {fileID: 1871775975219898785, guid: 8fac01af2e99e0c44bf0e6e53700decf, type: 3}
 --- !u!4 &803145299
 Transform:
   m_ObjectHideFlags: 0

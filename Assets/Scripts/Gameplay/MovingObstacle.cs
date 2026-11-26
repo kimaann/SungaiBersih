@@ -34,6 +34,16 @@ public class MovingObstacle : MonoBehaviour
         ResetObstacle();
     }
 
+    public void Configure(Vector3 newDirection, float newSpeed, float newTravelDistance)
+    {
+        direction = newDirection.sqrMagnitude > 0.001f ? newDirection.normalized : Vector3.right;
+        speed = Mathf.Max(0.1f, newSpeed);
+        travelDistance = Mathf.Max(0.1f, newTravelDistance);
+        initialLocalPosition = transform.localPosition;
+        initialLocalRotation = transform.localRotation;
+        ResetObstacle();
+    }
+
     public void ResetObstacle()
     {
         enabled = true;
