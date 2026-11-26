@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 public class EnvironmentLooper : MonoBehaviour
@@ -13,12 +12,17 @@ public class EnvironmentLooper : MonoBehaviour
     public bool loopForward = true;
     public bool loopBackward = true;
 
+    [Header("Course Mode")]
+    [Tooltip("Aktifkan untuk level dengan 3 environment dan finish tetap di EnvironmentSegment_03.")]
+    public bool finiteCourseMode = true;
+
     private float segmentLength;
     private bool isReady;
 
-    void Start()
+    public float SegmentLength => segmentLength;
+
+    private void Start()
     {
-        // Validasi Boat
         if (boat == null)
         {
             Debug.LogError("EnvironmentLooper: Boat belum diisi!");
@@ -26,10 +30,9 @@ public class EnvironmentLooper : MonoBehaviour
             return;
         }
 
-        // Validasi Segments
         if (segments == null || segments.Length < 2)
         {
-            Debug.LogError("Minimal harus ada 2 Environment Segments!");
+            Debug.LogError("EnvironmentLooper: Minimal harus ada 2 Environment Segments!");
             enabled = false;
             return;
         }
@@ -38,74 +41,81 @@ public class EnvironmentLooper : MonoBehaviour
         {
             if (segment == null)
             {
-                Debug.LogError("Ada Segment yang belum diisi!");
+                Debug.LogError("EnvironmentLooper: Ada Segment yang belum diisi!");
                 enabled = false;
                 return;
             }
         }
 
-        // Cari Renderer River
         if (riverReference == null)
         {
-            Debug.LogError("River Reference belum diisi!");
+            Debug.LogError("EnvironmentLooper: River Reference belum diisi!");
             enabled = false;
             return;
         }
 
-        Renderer riverRenderer =
-            riverReference.GetComponent<Renderer>();
+        Renderer riverRenderer = riverReference.GetComponent<Renderer>();
+
+        if (riverRenderer == null)
+            riverRenderer = riverReference.GetComponentInChildren<Renderer>(true);
 
         if (riverRenderer == null)
         {
-            riverRenderer =
-                riverReference.GetComponentInChildren<Renderer>();
-        }
-
-        if (riverRenderer == null)
-        {
-            Debug.LogError("Renderer River tidak ditemukan!");
+            Debug.LogError("EnvironmentLooper: Renderer River tidak ditemukan!");
             enabled = false;
             return;
         }
 
-        // Hitung panjang River berdasarkan ukuran aslinya
         segmentLength = riverRenderer.bounds.size.z;
 
         if (segmentLength <= 0.01f)
         {
-            Debug.LogError("Panjang River tidak valid!");
+            Debug.LogError("EnvironmentLooper: Panjang Segment tidak valid!");
             enabled = false;
             return;
         }
 
-        // Susun semua segment secara berurutan
+        // Susun segment secara berurutan: 01, 02, lalu 03.
         if (arrangeSegmentsOnStart)
         {
-            Vector3 startPosition = segments[0].position;
+            Vector3 firstSegmentPosition = segments[0].position;
 
             for (int i = 1; i < segments.Length; i++)
             {
                 segments[i].position =
-                    startPosition +
+                    firstSegmentPosition +
                     Vector3.forward * segmentLength * i;
             }
+        }
+
+        // Untuk level Sungai Bersih, jangan daur ulang segment.
+        // Pemain harus benar-benar melewati EnvironmentSegment_03.
+        if (finiteCourseMode)
+        {
+            loopForward = false;
+            loopBackward = false;
+
+            Debug.Log(
+                "EnvironmentLooper: FINITE COURSE aktif. " +
+                "Environment 01 -> 02 -> 03 -> Finish."
+            );
         }
 
         isReady = true;
 
         Debug.Log(
-            "Environment Loop aktif. Panjang Segment: " +
+            "Environment Loop siap. Panjang Segment: " +
             segmentLength
         );
     }
 
-    void LateUpdate()
+    private void LateUpdate()
     {
-        if (!isReady) return;
+        if (!isReady || finiteCourseMode)
+            return;
 
         float boatZ = boat.position.z;
 
-        // Loop ke depan
         if (loopForward)
         {
             int safety = 0;
@@ -123,14 +133,16 @@ public class EnvironmentLooper : MonoBehaviour
                     segments[maxIndex].position +
                     Vector3.forward * segmentLength;
 
-                foreach (MovingObstacle obs in segments[minIndex].GetComponentsInChildren<MovingObstacle>(true))
-                    obs.ResetObstacle();
+                foreach (MovingObstacle obstacle in
+                         segments[minIndex].GetComponentsInChildren<MovingObstacle>(true))
+                {
+                    obstacle.ResetObstacle();
+                }
 
                 safety++;
             }
         }
 
-        // Loop ke belakang
         if (loopBackward)
         {
             int safety = 0;
@@ -152,33 +164,27 @@ public class EnvironmentLooper : MonoBehaviour
         }
     }
 
-    int GetMinSegmentIndex()
+    private int GetMinSegmentIndex()
     {
         int index = 0;
 
         for (int i = 1; i < segments.Length; i++)
         {
-            if (segments[i].position.z <
-                segments[index].position.z)
-            {
+            if (segments[i].position.z < segments[index].position.z)
                 index = i;
-            }
         }
 
         return index;
     }
 
-    int GetMaxSegmentIndex()
+    private int GetMaxSegmentIndex()
     {
         int index = 0;
 
         for (int i = 1; i < segments.Length; i++)
         {
-            if (segments[i].position.z >
-                segments[index].position.z)
-            {
+            if (segments[i].position.z > segments[index].position.z)
                 index = i;
-            }
         }
 
         return index;

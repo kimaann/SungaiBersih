@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,23 +12,41 @@ public class BoatHealth : MonoBehaviour
     [Header("UI")]
     [SerializeField] private Text healthText;
 
+    [Header("Game Flow")]
+    [SerializeField] private RiverFinishController finishController;
+
     private Rigidbody rb;
     private BoatMovement boatMovement;
 
     private int currentHealth;
     private float nextDamageTime;
 
+    public int CurrentHealth => currentHealth;
+    public int MaxHealth => maxHealth;
+    public bool IsAlive => currentHealth > 0;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         boatMovement = GetComponent<BoatMovement>();
 
+        if (finishController == null)
+            finishController = FindFirstObjectByType<RiverFinishController>();
+
         maxHealth = Mathf.Max(1, maxHealth);
         damagePerHit = Mathf.Max(1, damagePerHit);
+        damageCooldown = Mathf.Max(0f, damageCooldown);
 
         currentHealth = maxHealth;
 
         UpdateHealthText();
+    }
+
+    private void Start()
+    {
+        // Fallback jika RiverFinishController belum ditemukan saat Awake.
+        if (finishController == null)
+            finishController = FindFirstObjectByType<RiverFinishController>();
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -49,7 +66,7 @@ public class BoatHealth : MonoBehaviour
 
         UpdateHealthText();
 
-        if (currentHealth == 0)
+        if (currentHealth <= 0)
             GameOver();
     }
 
@@ -60,31 +77,38 @@ public class BoatHealth : MonoBehaviour
 
         healthText.text = currentHealth > 0
             ? $"HP: {currentHealth}/{maxHealth}"
-            : $"HP: 0/{maxHealth} - GAME OVER (Tekan R Restart)";
+            : $"HP: 0/{maxHealth}";
     }
 
     private void GameOver()
     {
+        if (finishController == null)
+            finishController = FindFirstObjectByType<RiverFinishController>();
+
+        if (finishController != null)
+        {
+            finishController.NotifyBoatHealthDepleted();
+            return;
+        }
+
+        // Fallback jika controller akhir permainan tidak tersedia.
         if (boatMovement != null)
             boatMovement.enabled = false;
 
         if (TryGetComponent(out BoatTrashCollector collector))
             collector.enabled = false;
 
+#if UNITY_6000_0_OR_NEWER
         rb.linearVelocity = Vector3.zero;
+#else
+        rb.velocity = Vector3.zero;
+#endif
+
+        rb.angularVelocity = Vector3.zero;
         rb.isKinematic = true;
 
-        Debug.Log("GAME OVER: HP perahu habis.");
-    }
-
-    private void Update()
-    {
-        if (currentHealth <= 0 && Input.GetKeyDown(KeyCode.R))
-        {
-            Time.timeScale = 1f;
-            UnityEngine.SceneManagement.SceneManager.LoadScene(
-                UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex
-            );
-        }
+        Debug.LogError(
+            "BoatHealth: HP habis, tetapi RiverFinishController tidak ditemukan."
+        );
     }
 }

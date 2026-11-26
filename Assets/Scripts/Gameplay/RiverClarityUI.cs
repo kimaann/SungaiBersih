@@ -356,13 +356,9 @@ public class RiverClarityUI : MonoBehaviour
 
     private void CheckGameEnd()
     {
-        if (gameEnded)
-            return;
-
-        if (CurrentClarity >= 100f)
-            EndGame(true);
-        else if (CurrentClarity <= 0f)
-            EndGame(false);
+        // Kondisi menang dan kalah sekarang
+        // ditangani oleh RiverFinishController.
+        // Mencapai 100% bukan berarti permainan selesai.
     }
 
     private void EndGame(bool playerWon)
