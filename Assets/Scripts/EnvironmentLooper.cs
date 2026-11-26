@@ -16,6 +16,10 @@ public class EnvironmentLooper : MonoBehaviour
     [Tooltip("Aktifkan untuk level dengan 3 environment dan finish tetap di EnvironmentSegment_03.")]
     public bool finiteCourseMode = true;
 
+    [Header("Custom 3D Assets (Opsional: Drag Prefab Stones / Wood Logs ke sini)")]
+    public GameObject[] customRockPrefabs;
+    public GameObject[] customLogPrefabs;
+
     private float segmentLength;
     private bool isReady;
 
@@ -102,6 +106,15 @@ public class EnvironmentLooper : MonoBehaviour
         }
 
         isReady = true;
+
+        if (!TryGetComponent(out NaturalRiverObstacles naturalObstacles))
+            naturalObstacles = gameObject.AddComponent<NaturalRiverObstacles>();
+
+        if (customRockPrefabs != null && customRockPrefabs.Length > 0)
+            naturalObstacles.rockPrefabs = customRockPrefabs;
+
+        if (customLogPrefabs != null && customLogPrefabs.Length > 0)
+            naturalObstacles.logPrefabs = customLogPrefabs;
 
         Debug.Log(
             "Environment Loop siap. Panjang Segment: " +
