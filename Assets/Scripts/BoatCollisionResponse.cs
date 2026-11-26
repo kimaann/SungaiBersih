@@ -87,9 +87,6 @@ public class BoatCollisionResponse : MonoBehaviour
         if (logRb == null)
             return;
 
-        if (logRb == null)
-            return;
-
         // Hentikan gerakan otomatis
         movingObstacle.enabled = false;
 

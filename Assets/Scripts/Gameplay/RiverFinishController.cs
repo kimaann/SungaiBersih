@@ -112,6 +112,9 @@ public class RiverFinishController : MonoBehaviour
 
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
+
+        if (!TryGetComponent(out CilaPaperUITheme _))
+            gameObject.AddComponent<CilaPaperUITheme>();
     }
 
     private IEnumerator Start()
@@ -340,9 +343,8 @@ public class RiverFinishController : MonoBehaviour
             finishTitleText.text = "LEVEL COMPLETED!";
 
         string description =
-            "Kejernihan akhir sungai: " +
-            Mathf.RoundToInt(finalClarity) +
-            "%\nKamu berhasil mencapai garis finish Environment 03.";
+            "Kejernihan akhir: " +
+            Mathf.RoundToInt(finalClarity) + "%";
 
         if (finishDescriptionText != null)
             finishDescriptionText.text = description;
@@ -407,8 +409,7 @@ public class RiverFinishController : MonoBehaviour
             gameOverTitleText.text = "GAME OVER";
 
         if (gameOverDescriptionText != null)
-            gameOverDescriptionText.text =
-                reason + "\nCoba lagi dan selesaikan perjalanan.";
+            gameOverDescriptionText.text = reason;
 
         Debug.LogWarning("GAME OVER: " + reason);
 

@@ -164,24 +164,22 @@ public class NaturalRiverObstacles : MonoBehaviour
             float travel = Random.Range(5f, 9f);
             float spd = Random.Range(1.4f, 2.6f);
 
-            log.transform.localPosition = new Vector3(startX, 0.38f, posZ);
-            // Sedikit miring alami terhadap arus sungai
-            log.transform.localRotation = Quaternion.Euler(Random.Range(-15f, 15f), 0f, 90f);
+            log.transform.localPosition = new Vector3(startX, 0.5f, posZ);
+            log.transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
 
             mover.Configure(Vector3.right, spd, travel);
         }
-        else
+        else if (mover != null)
         {
-            // Kayu hanyut statis / tersangkut miring di tepi arus seperti foto referensi 2
-            if (mover != null)
-                Destroy(mover);
-
+            // Kayu tepian sungai: tetap punya MovingObstacle (gerak mengapung kecil) agar saat ditabrak tetap terpental & berputar!
             float snagX = safeCenterX > 0f
                 ? Random.Range(-riverHalfWidth + 2f, safeCenterX - safeChannelHalfWidth - 0.5f)
                 : Random.Range(safeCenterX + safeChannelHalfWidth + 0.5f, riverHalfWidth - 2f);
 
-            log.transform.localPosition = new Vector3(snagX, 0.32f, posZ);
-            log.transform.localRotation = Quaternion.Euler(0f, Random.Range(-35f, 35f), 90f);
+            log.transform.localPosition = new Vector3(snagX, 0.5f, posZ);
+            log.transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+
+            mover.Configure(Vector3.right, 0.6f, 0.8f);
         }
 
         ReplaceVisualWithCustomPrefab(log.transform, logPrefabs);

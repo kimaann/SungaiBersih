@@ -61,6 +61,9 @@ public class MovingObstacle : MonoBehaviour
             rb.interpolation = RigidbodyInterpolation.Interpolate;
         }
 
+        if (TryGetComponent(out Collider mainCol))
+            mainCol.enabled = true;
+
         transform.localPosition = initialLocalPosition;
         transform.localRotation = initialLocalRotation;
     }
