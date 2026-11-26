@@ -60,7 +60,7 @@ public class BoatHealth : MonoBehaviour
 
         healthText.text = currentHealth > 0
             ? $"HP: {currentHealth}/{maxHealth}"
-            : $"HP: 0/{maxHealth} - GAME OVER";
+            : $"HP: 0/{maxHealth} - GAME OVER (Tekan R Restart)";
     }
 
     private void GameOver()
@@ -68,9 +68,23 @@ public class BoatHealth : MonoBehaviour
         if (boatMovement != null)
             boatMovement.enabled = false;
 
+        if (TryGetComponent(out BoatTrashCollector collector))
+            collector.enabled = false;
+
         rb.linearVelocity = Vector3.zero;
         rb.isKinematic = true;
 
         Debug.Log("GAME OVER: HP perahu habis.");
+    }
+
+    private void Update()
+    {
+        if (currentHealth <= 0 && Input.GetKeyDown(KeyCode.R))
+        {
+            Time.timeScale = 1f;
+            UnityEngine.SceneManagement.SceneManager.LoadScene(
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex
+            );
+        }
     }
 }
